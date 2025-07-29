@@ -1,0 +1,85 @@
+// Hiệu ứng tim bay nền
+// Tạo hiệu ứng trái tim bay lên
+function createFloatingHeart() {
+	const heart = document.createElement("div");
+	heart.innerHTML = "❤️";
+	heart.classList.add("floating-heart");
+
+	// Ngẫu nhiên vị trí xuất phát
+	heart.style.left = Math.random() * 100 + "vw";
+	heart.style.bottom = "-10px"; // Bắt đầu từ dưới cùng trang
+	heart.style.fontSize = `${Math.random() * 20 + 10}px`;
+	heart.style.animationDuration = `${Math.random() * 3 + 5}s`;
+
+	document.body.appendChild(heart);
+
+	// Xóa trái tim khi animation kết thúc
+	heart.addEventListener("animationend", () => heart.remove());
+}
+
+// Liên tục tạo hiệu ứng trái tim bay lên
+setInterval(createFloatingHeart, 300);
+
+// Hiệu ứng icon rơi khi nhấn "Đồng ý"
+function createFallingElement() {
+	const elements = ["🌹", "💝", "💌", "💕", "🎀"];
+	const element = document.createElement("div");
+	element.textContent = elements[Math.floor(Math.random() * elements.length)];
+	element.classList.add("falling-element");
+	element.style.left = Math.random() * 100 + "vw";
+	element.style.fontSize = `${Math.random() * 20 + 20}px`;
+	element.style.animationDuration = 3 + Math.random() * 2 + "s";
+	document.body.appendChild(element);
+	element.addEventListener("animationend", () => element.remove());
+}
+
+// --- Xử lý nút "Từ chối" ---
+const noBtn = document.getElementById("noBtn");
+const mainContainer = document.getElementById("mainContainer");
+const rejectMessage = document.getElementById("rejectMessage");
+
+// Lưu vị trí ban đầu của nút "Từ chối" (relative so với container)
+let initBtnX = 0,
+	initBtnY = 0;
+window.addEventListener("load", () => {
+	const containerRect = mainContainer.getBoundingClientRect();
+	const btnRect = noBtn.getBoundingClientRect();
+	initBtnX = btnRect.left - containerRect.left;
+	initBtnY = btnRect.top - containerRect.top;
+});
+
+// Khi hover, chọn vị trí ngẫu nhiên mới trong toàn bộ vùng hợp lệ của container
+noBtn.addEventListener("mouseenter", () => {
+	const containerWidth = mainContainer.clientWidth;
+	const containerHeight = mainContainer.clientHeight;
+	const btnWidth = noBtn.offsetWidth;
+	const btnHeight = noBtn.offsetHeight;
+	const minX = -initBtnX;
+	const maxX = containerWidth - initBtnX - btnWidth;
+	const minY = -initBtnY;
+	const maxY = containerHeight - initBtnY - btnHeight;
+	const newX = Math.random() * (maxX - minX) + minX;
+	const newY = Math.random() * (maxY - minY) + minY;
+	noBtn.style.transform = `translate(${newX}px, ${newY}px)`;
+});
+
+// Khi click nút "Từ chối": ẩn container và hiển thị modal thông báo từ chối
+noBtn.addEventListener("click", (e) => {
+	e.stopPropagation();
+	mainContainer.style.display = "none";
+	rejectMessage.style.display = "block";
+});
+
+// Xử lý nút "Đồng ý"
+document.getElementById("yesBtn").addEventListener("click", function () {
+	mainContainer.style.display = "none";
+	document.getElementById("successMessage").style.display = "block";
+	const fallingInterval = setInterval(createFallingElement, 200);
+	setTimeout(() => clearInterval(fallingInterval), 10000);
+});
+
+// Xử lý nút "Quay lại" trong thông báo từ chối
+document.getElementById("backBtn").addEventListener("click", () => {
+	rejectMessage.style.display = "none";
+	mainContainer.style.display = "block";
+});
